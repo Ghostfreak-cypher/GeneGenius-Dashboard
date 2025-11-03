@@ -61,7 +61,19 @@ export default function DNAHelix({
           position: relative;
           width: 100%;
           height: 100%;
-          perspective: 1000px;
+          perspective: 800px;
+        }
+
+        @media (min-width: 640px) {
+          .dna-container {
+            perspective: 1000px;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .dna-container {
+            perspective: 1200px;
+          }
         }
 
         .helix {
@@ -75,21 +87,43 @@ export default function DNAHelix({
         .base-pair {
           position: absolute;
           width: 100%;
-          height: 20px;
+          height: 15px;
           transform-style: preserve-3d;
+        }
+
+        @media (min-width: 640px) {
+          .base-pair {
+            height: 20px;
+          }
         }
 
         .strand {
           position: absolute;
-          width: 20px;
-          height: 20px;
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
-          box-shadow: 0 0 20px currentColor;
+          box-shadow: 0 0 15px currentColor;
+        }
+
+        @media (min-width: 640px) {
+          .strand {
+            width: 16px;
+            height: 16px;
+            box-shadow: 0 0 18px currentColor;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .strand {
+            width: 20px;
+            height: 20px;
+            box-shadow: 0 0 20px currentColor;
+          }
         }
 
         .strand.left {
           left: 0;
-          background: linear-gradient(135deg, #000, #AAA);
+          background: linear-gradient(135deg, #000, #aaa);
         }
 
         .strand.right {
@@ -99,14 +133,32 @@ export default function DNAHelix({
 
         .connector {
           position: absolute;
-          width: calc(100% - 40px);
-          height: 3px;
-          left: 20px;
+          width: calc(100% - 24px);
+          height: 2px;
+          left: 12px;
           top: 50%;
           transform: translateY(-50%);
           background: linear-gradient(90deg, #000, #777, #000);
           opacity: 0.35;
-          box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+        }
+
+        @media (min-width: 640px) {
+          .connector {
+            width: calc(100% - 32px);
+            height: 2.5px;
+            left: 16px;
+            box-shadow: 0 0 7px rgba(0, 0, 0, 0.25);
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .connector {
+            width: calc(100% - 40px);
+            height: 3px;
+            left: 20px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+          }
         }
 
         .glow {
