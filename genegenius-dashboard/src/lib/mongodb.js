@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 let cached = global.mongoose;
 
@@ -7,13 +7,13 @@ if (!cached) {
 }
 
 async function connectDB() {
-
- 
   // Read MongoDB URI from environment variables
-  const MONGODB_URI = "mongodb+srv://vanshgoel979_db_user:VfCVimhNaplN73pu@cluster0.t417x9m.mongodb.net/";
+  const MONGODB_URI = process.env.MONGODB_URI;
   
   if (!MONGODB_URI) {
-    throw new Error('Please define the MONGODB_URI environment variable in .env');
+    throw new Error(
+      "Please define the MONGODB_URI environment variable in .env"
+    );
   }
 
   if (cached.conn) {
@@ -41,4 +41,3 @@ async function connectDB() {
 }
 
 export default connectDB;
-
