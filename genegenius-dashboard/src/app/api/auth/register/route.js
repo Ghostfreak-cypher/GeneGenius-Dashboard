@@ -3,7 +3,7 @@ import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { hashPassword } from '@/lib/auth';
 import { signupSchema } from '@/lib/validations';
-import { sendAdminApprovalRequest, sendUserPendingConfirmation } from '@/lib/nodemailer';
+import { sendAdminApprovalRequest, sendUserPendingConfirmation, sendSignupOTP } from '@/lib/nodemailer';
 import { findAdminUsers, getAdminEmail } from '@/utils/admin';
 import crypto from 'crypto';
 
@@ -39,7 +39,12 @@ export async function POST(request) {
     // Generate approval token (not verification token yet)
     const approvalToken = crypto.randomBytes(32).toString('hex');
 
-    // Create user with pending approval
+    // Generate OTP for email verification
+    const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Create user with pending approval and unverified email (OTP stored hashed)
     const user = await User.create({
       email,
       password: hashedPassword,
@@ -48,6 +53,9 @@ export async function POST(request) {
       isApproved: false,
       isVerified: false,
       approvalToken,
+      emailVerificationOTPHash: otpHash,
+      emailVerificationOTPExpiresAt: otpExpiresAt,
+      emailVerificationOTPAttempts: 0,
     });
 
     // Find admin users and send approval request
@@ -80,7 +88,9 @@ export async function POST(request) {
         );
       }
 
-      // Send pending confirmation to user
+      // Send OTP to user for email verification
+      await sendSignupOTP(email, name || '', otp);
+      // Also send pending confirmation informational email (optional)
       await sendUserPendingConfirmation(email, name || '');
     } catch (emailError) {
       console.error('Error sending emails:', emailError);

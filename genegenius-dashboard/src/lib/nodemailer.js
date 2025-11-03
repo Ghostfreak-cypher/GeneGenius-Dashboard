@@ -168,3 +168,25 @@ export async function sendUserRejectionNotification(email, name) {
   return await transporter.sendMail(mailOptions);
 }
 
+export async function sendSignupOTP(email, name, otp) {
+  const mailOptions = {
+    from: EMAIL_USER,
+    to: email,
+    subject: 'Your GeneGenius verification code',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #000000; background-color: #ffffff;">
+        <h1 style="color: #000000; border-bottom: 2px solid #000000; padding-bottom: 10px;">Verify your email</h1>
+        <p style="color: #000000; font-size: 16px;">Hello ${name || 'there'},</p>
+        <p style="color: #000000; font-size: 16px;">Use the following One-Time Passcode (OTP) to verify your email address:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <div style="display: inline-block; letter-spacing: 6px; font-size: 28px; font-weight: 700; background:#f5f5f5; border:1px solid #000000; padding: 14px 24px;">${otp}</div>
+        </div>
+        <p style="color: #808080; font-size: 14px;">This code expires in 10 minutes. If you didn't request this, you can ignore this email.</p>
+      </div>
+    `,
+    text: `Hello ${name || 'there'}, your verification code is: ${otp}. It expires in 10 minutes.`,
+  };
+
+  return await transporter.sendMail(mailOptions);
+}
+

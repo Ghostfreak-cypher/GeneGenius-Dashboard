@@ -50,19 +50,20 @@ export default function SignupForm() {
         return;
       }
 
-      setSuccess(data.message || 'Registration successful! Please check your email to verify your account.');
+      setSuccess(data.message || 'Registration successful! Enter the code sent to your email.');
       setLoading(false);
       
       // Clear form
       setName('');
+      const emailForRedirect = email; // preserve before clearing
       setEmail('');
       setPassword('');
       setConfirmPassword('');
 
-      // Optionally redirect to login after a delay
+      // Redirect to verify page with email prefilled
       setTimeout(() => {
-        router.push('/login');
-      }, 3000);
+        router.push(`/verify?email=${encodeURIComponent(emailForRedirect)}`);
+      }, 1000);
     } catch (err) {
       setError('An error occurred. Please try again.');
       setLoading(false);

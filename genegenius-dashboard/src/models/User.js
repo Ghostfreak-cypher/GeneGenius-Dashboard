@@ -55,6 +55,17 @@ const UserSchema = new mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
     },
+    // OTP-based email verification fields
+    emailVerificationOTPHash: {
+      type: String,
+    },
+    emailVerificationOTPExpiresAt: {
+      type: Date,
+    },
+    emailVerificationOTPAttempts: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
