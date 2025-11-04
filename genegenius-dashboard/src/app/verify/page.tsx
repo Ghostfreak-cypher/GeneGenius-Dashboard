@@ -1,24 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, FormEvent, ChangeEvent, MouseEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DNAHelix from "@/components/DNAHelix";
+
+interface VerifyResponse {
+  error?: string;
+  message?: string;
+}
 
 export default function VerifyPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [otp, setOtp] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
 
   useEffect(() => {
     const qpEmail = searchParams.get("email");
     if (qpEmail) setEmail(qpEmail);
-  }, [searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleVerify = async (e) => {
+  const handleVerify = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -29,7 +35,7 @@ export default function VerifyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
       });
-      const data = await res.json();
+      const data: VerifyResponse = await res.json();
       if (!res.ok) {
         setError(data.error || "Verification failed");
         setLoading(false);
@@ -41,10 +47,12 @@ export default function VerifyPage() {
     } catch (err) {
       setError("An error occurred. Please try again.");
       setLoading(false);
+      console.error("Verification error:", err);
     }
   };
 
-  const handleResend = async () => {
+  const handleResend = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     setError("");
     setSuccess("");
     setLoading(true);
@@ -54,7 +62,7 @@ export default function VerifyPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
+      const data: VerifyResponse = await res.json();
       if (!res.ok) {
         setError(data.error || "Could not resend code");
         setLoading(false);
@@ -65,6 +73,7 @@ export default function VerifyPage() {
     } catch (err) {
       setError("An error occurred. Please try again.");
       setLoading(false);
+      console.error("Resend error:", err);
     }
   };
 
@@ -99,7 +108,9 @@ export default function VerifyPage() {
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setEmail(e.target.value)
+                    }
                     required
                     disabled={loading}
                     className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 px-4 py-3 text-black dark:text-white shadow-sm outline-none ring-1 ring-transparent transition focus:ring-2 focus:ring-sky-500/70 dark:focus:ring-sky-400/70 placeholder:text-gray-400 disabled:opacity-60"
@@ -118,9 +129,9 @@ export default function VerifyPage() {
                     id="otp"
                     type="text"
                     inputMode="numeric"
-                    pattern="\\d{6}"
+                    pattern="\d{6}"
                     value={otp}
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))
                     }
                     required
@@ -140,7 +151,7 @@ export default function VerifyPage() {
                       type="button"
                       onClick={handleResend}
                       disabled={loading || !email}
-                      className="text-xs text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition"
+                      className="text-xs text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition disabled:opacity-60"
                     >
                       Resend code
                     </button>
@@ -172,7 +183,7 @@ export default function VerifyPage() {
                   disabled={loading}
                   className="group relative w-full overflow-hidden rounded-xl bg-black text-white dark:bg-white dark:text-black px-4 py-3 font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <span className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-500 via-zinc-800 to-zinc-500 opacity-0 transition group-hover:opacity-100" />
+                  <span className="absolute inset-0 -z-10 bg-linear-to-r from-zinc-500 via-zinc-800 to-zinc-500 opacity-0 transition group-hover:opacity-100" />
                   {loading ? "Verifying…" : "Verify email"}
                 </button>
               </form>

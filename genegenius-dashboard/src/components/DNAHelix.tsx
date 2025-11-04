@@ -1,15 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, CSSProperties } from "react";
 import "./DNAHelix.css";
+
+interface DNAHelixProps {
+  numPairs?: number;
+  spacing?: number;
+  showBackground?: boolean;
+}
+
+interface BasePair {
+  angle: number;
+  yPos: number;
+  delay: number;
+}
 
 export default function DNAHelix({
   numPairs = 20,
   spacing = 25,
-  title = "DNA HELIX",
   showBackground = true,
-}) {
-  const pairs = useMemo(
+}: DNAHelixProps) {
+  const pairs = useMemo<BasePair[]>(
     () =>
       Array.from({ length: numPairs }, (_, i) => ({
         angle: (i / numPairs) * 360,
@@ -28,16 +39,21 @@ export default function DNAHelix({
             <div
               key={idx}
               className="base-pair"
-              style={{ top: `${yPos}px`, transform: `rotateY(${angle}deg)` }}
+              style={
+                {
+                  top: `${yPos}px`,
+                  transform: `rotateY(${angle}deg)`,
+                } as CSSProperties
+              }
             >
               <div
                 className="strand left"
-                style={{ animationDelay: `${delay}s` }}
+                style={{ animationDelay: `${delay}s` } as CSSProperties}
               />
               <div className="connector" />
               <div
                 className="strand right"
-                style={{ animationDelay: `${delay}s` }}
+                style={{ animationDelay: `${delay}s` } as CSSProperties}
               />
             </div>
           ))}

@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import type { Transporter } from "nodemailer";
 
 // Email configuration from environment variables
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -6,7 +7,7 @@ const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 const EMAIL_SERVICE = process.env.EMAIL_SERVICE || "gmail"; // gmail, outlook, etc.
 const SMTP_HOST = process.env.SMTP_HOST;
-const SMTP_PORT = process.env.SMTP_PORT || 587;
+const SMTP_PORT = process.env.SMTP_PORT || "587";
 
 // Validate required environment variables
 if (!EMAIL_USER || !EMAIL_PASSWORD) {
@@ -16,7 +17,7 @@ if (!EMAIL_USER || !EMAIL_PASSWORD) {
 }
 
 // Create transporter with proper configuration
-const transporter = nodemailer.createTransport({
+const transporter: Transporter = nodemailer.createTransport({
   service: EMAIL_SERVICE !== "custom" ? EMAIL_SERVICE : undefined,
   host: EMAIL_SERVICE === "custom" ? SMTP_HOST : undefined,
   port: parseInt(SMTP_PORT),
@@ -40,7 +41,7 @@ transporter.verify(function (error) {
   }
 });
 
-export async function sendVerificationEmail(email, token) {
+export async function sendVerificationEmail(email: string, token: string) {
   try {
     const verificationUrl = `${APP_URL}/api/auth/verify?token=${token}`;
 
@@ -68,11 +69,15 @@ export async function sendVerificationEmail(email, token) {
     return info;
   } catch (error) {
     console.error("❌ Error sending verification email:", error);
-    throw new Error(`Failed to send verification email: ${error.message}`);
+    throw new Error(
+      `Failed to send verification email: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 }
 
-export async function sendPasswordResetEmail(email, token) {
+export async function sendPasswordResetEmail(email: string, token: string) {
   const resetUrl = `${APP_URL}/reset-password?token=${token}`;
 
   const mailOptions = {
@@ -97,16 +102,23 @@ export async function sendPasswordResetEmail(email, token) {
   return await transporter.sendMail(mailOptions);
 }
 
+interface UserDetails {
+  name?: string;
+  email: string;
+  createdAt: Date;
+}
+
 export async function sendAdminApprovalRequest(
-  userDetails,
-  approvalToken,
-  adminEmails = []
+  userDetails: UserDetails,
+  approvalToken: string,
+  adminEmails: string[] = []
 ) {
   const approveUrl = `${APP_URL}/api/auth/approve/${approvalToken}`;
   const rejectUrl = `${APP_URL}/api/auth/approve/reject/${approvalToken}`;
 
   // Determine recipients: adminEmails array, or fallback to sender email
-  let recipients = adminEmails.length > 0 ? adminEmails.join(", ") : EMAIL_USER;
+  const recipients =
+    adminEmails.length > 0 ? adminEmails.join(", ") : EMAIL_USER;
 
   const mailOptions = {
     from: EMAIL_USER,
@@ -147,7 +159,10 @@ export async function sendAdminApprovalRequest(
   return await transporter.sendMail(mailOptions);
 }
 
-export async function sendUserPendingConfirmation(email, name) {
+export async function sendUserPendingConfirmation(
+  email: string,
+  name?: string
+) {
   const mailOptions = {
     from: EMAIL_USER,
     to: email,
@@ -172,9 +187,9 @@ export async function sendUserPendingConfirmation(email, name) {
 }
 
 export async function sendUserApprovalNotification(
-  email,
-  name,
-  verificationToken
+  email: string,
+  name: string | undefined,
+  verificationToken: string
 ) {
   const verificationUrl = `${APP_URL}/api/auth/verify?token=${verificationToken}`;
 
@@ -206,7 +221,10 @@ export async function sendUserApprovalNotification(
   return await transporter.sendMail(mailOptions);
 }
 
-export async function sendUserRejectionNotification(email, name) {
+export async function sendUserRejectionNotification(
+  email: string,
+  name?: string
+) {
   const mailOptions = {
     from: EMAIL_USER,
     to: email,
@@ -229,7 +247,11 @@ export async function sendUserRejectionNotification(email, name) {
   return await transporter.sendMail(mailOptions);
 }
 
-export async function sendSignupOTP(email, name, otp) {
+export async function sendSignupOTP(
+  email: string,
+  name: string | undefined,
+  otp: string
+) {
   const mailOptions = {
     from: EMAIL_USER,
     to: email,

@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, FormEvent, ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignupForm() {
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     setLoading(true);
 
     // Client-side validation
@@ -28,16 +28,16 @@ export default function SignupForm() {
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError("Password must be at least 6 characters");
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password, confirmPassword }),
       });
@@ -45,42 +45,51 @@ export default function SignupForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Registration failed');
+        setError(data.error || "Registration failed");
         setLoading(false);
         return;
       }
 
-      setSuccess(data.message || 'Registration successful! Enter the code sent to your email.');
+      setSuccess(
+        data.message ||
+          "Registration successful! Enter the code sent to your email."
+      );
       setLoading(false);
-      
+
       // Clear form
-      setName('');
+      setName("");
       const emailForRedirect = email; // preserve before clearing
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
 
       // Redirect to verify page with email prefilled
       setTimeout(() => {
         router.push(`/verify?email=${encodeURIComponent(emailForRedirect)}`);
       }, 1000);
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError("An error occurred. Please try again.");
       setLoading(false);
+      console.error("Signup error:", err);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-6">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-black dark:text-white mb-2">
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-black dark:text-white mb-2"
+        >
           Name (optional)
         </label>
         <input
           id="name"
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setName(e.target.value)
+          }
           disabled={loading}
           className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 px-4 py-3 text-black dark:text-white shadow-sm outline-none ring-1 ring-transparent transition focus:ring-2 focus:ring-sky-500/70 dark:focus:ring-sky-400/70 placeholder:text-gray-400 disabled:opacity-60"
           placeholder="Your name"
@@ -88,14 +97,19 @@ export default function SignupForm() {
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-black dark:text-white mb-2">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-black dark:text-white mb-2"
+        >
           Email
         </label>
         <input
           id="email"
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
           required
           disabled={loading}
           className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 px-4 py-3 text-black dark:text-white shadow-sm outline-none ring-1 ring-transparent transition focus:ring-2 focus:ring-sky-500/70 dark:focus:ring-sky-400/70 placeholder:text-gray-400 disabled:opacity-60"
@@ -104,32 +118,44 @@ export default function SignupForm() {
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-black dark:text-white mb-2">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-black dark:text-white mb-2"
+        >
           Password
         </label>
         <input
           id="password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setPassword(e.target.value)
+          }
           required
           disabled={loading}
           className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 px-4 py-3 text-black dark:text-white shadow-sm outline-none ring-1 ring-transparent transition focus:ring-2 focus:ring-sky-500/70 dark:focus:ring-sky-400/70 placeholder:text-gray-400 disabled:opacity-60"
           placeholder="••••••••"
           minLength={6}
         />
-        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">Must be at least 6 characters</p>
+        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+          Must be at least 6 characters
+        </p>
       </div>
 
       <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-black dark:text-white mb-2">
+        <label
+          htmlFor="confirmPassword"
+          className="block text-sm font-medium text-black dark:text-white mb-2"
+        >
           Confirm password
         </label>
         <input
           id="confirmPassword"
           type="password"
           value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setConfirmPassword(e.target.value)
+          }
           required
           disabled={loading}
           className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 px-4 py-3 text-black dark:text-white shadow-sm outline-none ring-1 ring-transparent transition focus:ring-2 focus:ring-sky-500/70 dark:focus:ring-sky-400/70 placeholder:text-gray-400 disabled:opacity-60"
@@ -157,8 +183,8 @@ export default function SignupForm() {
         disabled={loading}
         className="group relative w-full overflow-hidden rounded-xl bg-black text-white dark:bg-white dark:text-black px-4 py-3 font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        <span className="absolute inset-0 -z-10 bg-gradient-to-r from-zinc-500 via-zinc-800 to-zinc-500 opacity-0 transition group-hover:opacity-100" />
-        {loading ? 'Signing up…' : 'Create account'}
+        <span className="absolute inset-0 -z-10 bg-linear-to-r from-zinc-500 via-zinc-800 to-zinc-500 opacity-0 transition group-hover:opacity-100" />
+        {loading ? "Signing up…" : "Create account"}
       </button>
 
       <div className="text-center">
@@ -172,4 +198,3 @@ export default function SignupForm() {
     </form>
   );
 }
-

@@ -7,8 +7,8 @@ import DNAHelix from "@/components/DNAHelix";
 
 function LoginContent() {
   const searchParams = useSearchParams();
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
+  const [message, setMessage] = useState<string>("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
 
   useEffect(() => {
     const verified = searchParams.get("verified");
@@ -21,7 +21,8 @@ function LoginContent() {
       setMessage(decodeURIComponent(error));
       setMessageType("error");
     }
-  }, [searchParams]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

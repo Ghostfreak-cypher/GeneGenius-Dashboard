@@ -1,17 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+interface LoginResponse {
+  token?: string;
+  user?: {
+    id: string;
+    email: string;
+    name?: string;
+    role: string;
+  };
+  error?: string;
+}
+
 export default function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -25,7 +36,7 @@ export default function LoginForm() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data: LoginResponse = await response.json();
 
       if (!response.ok) {
         setError(data.error || "Login failed");
@@ -37,14 +48,19 @@ export default function LoginForm() {
       if (data.token) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        // Store email separately for easy access
+        if (data.user?.email) {
+          localStorage.setItem("userEmail", data.user.email);
+        }
       }
 
       // Redirect to home page
       router.push("/");
       router.refresh();
     } catch (err) {
-      setError("An error occurred. Please try again.", err);
+      setError("An error occurred. Please try again.");
       setLoading(false);
+      console.error("Login error:", err);
     }
   };
 
@@ -61,7 +77,9 @@ export default function LoginForm() {
           id="email"
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
           required
           disabled={loading}
           className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 px-4 py-3 text-black dark:text-white shadow-sm outline-none ring-1 ring-transparent transition focus:ring-2 focus:ring-purple-500/70 dark:focus:ring-purple-400/70 placeholder:text-gray-400 disabled:opacity-60"
@@ -80,7 +98,9 @@ export default function LoginForm() {
           id="password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setPassword(e.target.value)
+          }
           required
           disabled={loading}
           className="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-black/50 px-4 py-3 text-black dark:text-white shadow-sm outline-none ring-1 ring-transparent transition focus:ring-2 focus:ring-purple-500/70 dark:focus:ring-purple-400/70 placeholder:text-gray-400 disabled:opacity-60"
